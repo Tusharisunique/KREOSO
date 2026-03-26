@@ -1,4 +1,4 @@
-// ChunkingService — splits raw text into overlapping chunks of ~750 chars with 50-char overlap
+// ChunkingService - splits raw text into overlapping chunks of ~750 chars with 50-char overlap
 package com.seekb.ingestion.service;
 
 import org.springframework.stereotype.Service;

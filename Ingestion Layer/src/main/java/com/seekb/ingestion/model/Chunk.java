@@ -1,4 +1,4 @@
-// Chunk entity — represents a text segment parsed from an uploaded document, stored in PostgreSQL
+// Chunk entity - represents a text segment parsed from an uploaded document, stored in PostgreSQL
 package com.seekb.ingestion.model;
 
 import jakarta.persistence.*;
@@ -25,7 +25,8 @@ public class Chunk {
 
     private LocalDateTime createdAt;
 
-    public Chunk() {}
+    public Chunk() {
+    }
 
     public Chunk(String documentName, String text) {
         this.documentName = documentName;
@@ -36,21 +37,51 @@ public class Chunk {
     }
 
     // Getters and setters
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
+    public UUID getId() {
+        return id;
+    }
 
-    public String getDocumentName() { return documentName; }
-    public void setDocumentName(String documentName) { this.documentName = documentName; }
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
-    public String getText() { return text; }
-    public void setText(String text) { this.text = text; }
+    public String getDocumentName() {
+        return documentName;
+    }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public void setDocumentName(String documentName) {
+        this.documentName = documentName;
+    }
 
-    public double getConfidence() { return confidence; }
-    public void setConfidence(double confidence) { this.confidence = confidence; }
+    public String getText() {
+        return text;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public double getConfidence() {
+        return confidence;
+    }
+
+    public void setConfidence(double confidence) {
+        this.confidence = confidence;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }

@@ -1,4 +1,4 @@
-// Spring Data JPA repository for Chunk — provides DB access with no boilerplate SQL
+// Spring Data JPA repository for Chunk - provides DB access with no boilerplate SQL
 package com.seekb.ingestion.repository;
 
 import com.seekb.ingestion.model.Chunk;
