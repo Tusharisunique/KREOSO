@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>SE-EKB | Access</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container" style="max-width: 400px; margin-top: 15vh;">
+        <h1 style="text-align: center; margin-bottom: 3rem;">AUTHENTICATION</h1>
+        
+        <form th:action="@{/login}" method="post">
+            <div class="form-group">
+                <label>System Identity</label>
+                <input type="text" name="username" placeholder="USERNAME" required autofocus>
+            </div>
+            <div class="form-group">
+                <label>Security Key</label>
+                <input type="password" name="password" placeholder="PASSWORD" required>
+            </div>
+            
+            <div th:if="${error}" style="color: red; font-size: 0.75rem; margin-bottom: 1rem; text-transform: uppercase;">
+                Invalid Credentials. Use 'admin' or 'user'.
+            </div>
+            
+            <button type="submit" class="btn" style="width: 100%;">VALIDATE</button>
+        </form>
+    </div>
+    
+    <footer>
+        Self-Evolving Enterprise Knowledge Brain &copy; 2026
+    </footer>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>SE-EKB | Management</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>[ADMIN] KNOWLEDGE BRAIN</h1>
+        <a th:href="@{/logout}" class="btn btn-secondary">TERMINATE</a>
+    </header>
+
+    <div class="container">
+        <!-- Injection Section -->
+        <section style="margin-bottom: 5rem;">
+            <h2>INJECT NEW KNOWLEDGE</h2>
+            <p style="font-size: 0.875rem; color: #666; margin-bottom: 2rem;">SUBMIT PDF, DOCX, OR TXT ASSETS TO THE BRAIN CORE.</p>
+            
+            <form th:action="@{/admin/upload}" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <input type="file" name="file" required>
+                </div>
+                <button type="submit" class="btn">START INGESTION</button>
+            </form>
+            
+            <div th:if="${message}" style="margin-top: 1rem; font-size: 0.875rem; text-transform: uppercase;">
+                <span th:text="${message}"></span>
+            </div>
+        </section>
+
+        <!-- Management Section -->
+        <section>
+            <h2>IDENTIFIED DOCUMENTS</h2>
+            <p style="font-size: 0.875rem; color: #666; margin-bottom: 1rem;">LIST OF ACTIVE KNOWLEDGE SEGMENTS IN SUPABASE.</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>DOCUMENT NAME</th>
+                        <th>ACTION</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="doc : ${documents}">
+                        <td th:text="${doc}">document.pdf</td>
+                        <td style="text-align: right;">
+                            <form th:action="@{/admin/delete}" method="post" style="display: inline;">
+                                <input type="hidden" name="name" th:value="${doc}">
+                                <button type="submit" class="btn btn-secondary" style="padding: 0.5rem 1rem;">FORGET</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(documents)}">
+                        <td colspan="2" style="text-align: center; padding: 3rem; color: #999;">NO KNOWLEDGE FOUND</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+    <footer>
+        Authorized Access Only Core v1.0.0
+    </footer>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>SE-EKB | Interact</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>BRAIN INTERACTION</h1>
+        <a th:href="@{/logout}" class="btn btn-secondary">TERMINATE</a>
+    </header>
+
+    <div class="container" style="display: flex; flex-direction: column; height: 70vh;">
+        <div id="chatHistory" class="chat-container" style="flex: 1; overflow-y: auto; padding-right: 1rem;">
+            <div class="message ai">
+                SYSTEM READY. PROVIDE QUERY TO INITIATE KNOWLEDGE RETRIEVAL.
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem;">
+            <form id="chatForm">
+                <div class="form-group">
+                    <input type="text" id="userInput" placeholder="ENTER QUERY..." required autocomplete="off">
+                </div>
+                <button type="submit" class="btn" id="sendBtn">EXECUTE</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        Self-Evolving Enterprise Knowledge Brain v1.0.0
+    </footer>
+
+    <script th:inline="javascript">
+        const chatHistory = document.getElementById('chatHistory');
+        const chatForm = document.getElementById('chatForm');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            // Add User Message
+            addMessage(text, 'user');
+            userInput.value = '';
+            
+            // Add Loading State
+            const loadingMsg = addMessage('PROCESSING...', 'ai');
+            
+            try {
+                const response = await fetch('/chat/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: text })
+                });
+                
+                const data = await response.json();
+                
+                // Update AI Message
+                loadingMsg.innerHTML = data.answer.toUpperCase();
+                
+                if (data.sources && data.sources.length > 0) {
+                    const sourcesDiv = document.createElement('div');
+                    sourcesDiv.className = 'sources';
+                    sourcesDiv.innerText = 'SOURCES: ' + data.sources.join(', ');
+                    loadingMsg.appendChild(sourcesDiv);
+                }
+            } catch (err) {
+                loadingMsg.innerText = 'COMMUNICATION ERROR: ' + err.message;
+            }
+            
+            scrollToBottom();
+        });
+
+        function addMessage(text, role) {
+            const div = document.createElement('div');
+            div.className = 'message ' + role;
+            div.innerText = text.toUpperCase();
+            chatHistory.appendChild(div);
+            scrollToBottom();
+            return div;
+        }
+
+        function scrollToBottom() {
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+    </script>
+</body>
+</html>

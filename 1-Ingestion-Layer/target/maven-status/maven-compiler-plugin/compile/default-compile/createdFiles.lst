@@ -1,0 +1,11 @@
+com/seekb/ingestion/parser/PDFParser.class
+com/seekb/ingestion/parser/AbstractDocumentParser.class
+com/seekb/ingestion/parser/TextParser.class
+com/seekb/ingestion/IngestionApplication.class
+com/seekb/ingestion/model/Chunk.class
+com/seekb/ingestion/parser/DOCXParser.class
+com/seekb/ingestion/controller/IngestionController.class
+com/seekb/ingestion/service/IngestionService.class
+com/seekb/ingestion/repository/ChunkRepository.class
+com/seekb/ingestion/parser/ParserFactory.class
+com/seekb/ingestion/service/ChunkingService.class

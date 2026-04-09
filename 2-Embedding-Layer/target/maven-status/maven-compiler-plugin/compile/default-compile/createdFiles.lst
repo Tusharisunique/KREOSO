@@ -1,0 +1,6 @@
+com/seekb/embedding/model/Chunk.class
+com/seekb/embedding/service/EmbeddingService.class
+com/seekb/embedding/client/OllamaClient.class
+com/seekb/embedding/repository/ChunkRepository.class
+com/seekb/embedding/worker/EmbeddingWorker.class
+com/seekb/embedding/EmbeddingApplication.class
