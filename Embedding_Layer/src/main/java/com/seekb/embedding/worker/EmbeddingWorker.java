@@ -1,4 +1,4 @@
-// EmbeddingWorker — Runnable that processes one chunk: embeds it and appends the vector to a shared list
+// EmbeddingWorker - Runnable that processes one chunk: embeds it and appends the vector to a shared list
 package com.seekb.embedding.worker;
 
 import com.seekb.embedding.client.OllamaClient;
@@ -12,8 +12,12 @@ public class EmbeddingWorker implements Runnable {
     private final List<float[]> resultList;
     private final List<Chunk> processedChunks;
 
-    public EmbeddingWorker(Chunk chunk, OllamaClient ollamaClient,
-            List<float[]> resultList, List<Chunk> processedChunks) {
+    public EmbeddingWorker(
+        Chunk chunk,
+        OllamaClient ollamaClient,
+        List<float[]> resultList,
+        List<Chunk> processedChunks
+    ) {
         this.chunk = chunk;
         this.ollamaClient = ollamaClient;
         this.resultList = resultList;
@@ -30,7 +34,12 @@ public class EmbeddingWorker implements Runnable {
                 processedChunks.add(chunk);
             }
         } catch (Exception e) {
-            System.err.println("EmbeddingWorker failed for chunk " + chunk.getId() + ": " + e.getMessage());
+            System.err.println(
+                "EmbeddingWorker failed for chunk " +
+                    chunk.getId() +
+                    ": " +
+                    e.getMessage()
+            );
         }
     }
 }

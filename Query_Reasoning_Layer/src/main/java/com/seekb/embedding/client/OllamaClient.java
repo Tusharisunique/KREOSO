@@ -1,15 +1,15 @@
 // OllamaClient - sends chunk text to Ollama's REST API and returns a float[768] embedding vector
 package com.seekb.embedding.client;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonArray;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 @Component
 public class OllamaClient {
@@ -38,8 +38,11 @@ public class OllamaClient {
 
         // Read response
         StringBuilder response = new StringBuilder();
-        try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+        try (
+                BufferedReader br = new BufferedReader(
+                        new InputStreamReader(
+                                conn.getInputStream(),
+                                StandardCharsets.UTF_8))) {
             String line;
             while ((line = br.readLine()) != null) {
                 response.append(line);
@@ -47,7 +50,8 @@ public class OllamaClient {
         }
 
         // Parse embedding array from JSON
-        JsonObject json = JsonParser.parseString(response.toString()).getAsJsonObject();
+        JsonObject json = JsonParser.parseString(
+                response.toString()).getAsJsonObject();
         JsonArray embeddingArray = json.getAsJsonArray("embedding");
 
         float[] vector = new float[embeddingArray.size()];
@@ -58,34 +62,50 @@ public class OllamaClient {
         return vector;
     }
 
-    public String generateAnswer(String query, String context) throws Exception {
+    public String generateAnswer(String query, String context)
+            throws Exception {
         URL url = new URL(ollamaBaseUrl + "/api/generate");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setDoOutput(true);
 
-        String prompt = "Context:\n" + context + "\n\nQuestion: " + query + "\n\nAnswer based purely on the context above. If the context doesn't contain the answer, say you don't know.";
+        String prompt = "You are the SE-EKB Enterprise Knowledge Brain. Answer the question nicely and professionally.\n\n" +
+                "Context from our database:\n" +
+                context +
+                "\n\nQuestion: " +
+                query +
+                "\n\nInstructions:\n" +
+                "1. Answer based on the context if possible.\n" +
+                "2. If you don't find the answer in the context, say 'I didn't find specific details in your database, but based on my general knowledge...' and then provide a long and helpful answer.\n" +
+                "3. ALWAYS output your response as a JSON object with two fields: 'answer' (string) and 'confidence' (integer between 0 and 100).\n" +
+                "4. DO NOT include any conversational filler, markdown formatting, or backticks outside of the JSON object.\n" +
+                "5. Only return the JSON object.";
 
         JsonObject body = new JsonObject();
         body.addProperty("model", CHAT_MODEL);
         body.addProperty("prompt", prompt);
         body.addProperty("stream", false);
+        body.addProperty("format", "json"); // FORCE JSON mode at the API level
 
         try (OutputStream os = conn.getOutputStream()) {
             os.write(body.toString().getBytes(StandardCharsets.UTF_8));
         }
 
         StringBuilder response = new StringBuilder();
-        try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+        try (
+                BufferedReader br = new BufferedReader(
+                        new InputStreamReader(
+                                conn.getInputStream(),
+                                StandardCharsets.UTF_8))) {
             String line;
             while ((line = br.readLine()) != null) {
                 response.append(line);
             }
         }
 
-        JsonObject json = JsonParser.parseString(response.toString()).getAsJsonObject();
+        JsonObject json = JsonParser.parseString(
+                response.toString()).getAsJsonObject();
         return json.get("response").getAsString();
     }
 }

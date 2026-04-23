@@ -34,10 +34,11 @@ public class SearchService {
         // 2. Convert float[] to PGVector string format: [0.1,0.2,...]
         String vectorStr = Arrays.toString(queryVector).replace(" ", "");
 
-        // 3. Perform similarity search in Supabase using JdbcTemplate for robust native support
+        // 3. Perform similarity search in Supabase using JdbcTemplate for robust native
+        // support
         String sql = "SELECT id, document_name, text, status, confidence, created_at FROM chunks " +
-                     "WHERE status = 'COMPLETED' " +
-                     "ORDER BY embedding <=> CAST(? AS vector) LIMIT ?";
+                "WHERE status = 'COMPLETED' " +
+                "ORDER BY embedding <=> CAST(? AS vector) LIMIT ?";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             Chunk chunk = new Chunk();
@@ -55,24 +56,59 @@ public class SearchService {
      * Performs RAG: Retrieves context and generates an answer using local LLM.
      */
     public Map<String, Object> ask(String query) throws Exception {
-        List<Chunk> topChunks = search(query, 3);
-        
-        if (topChunks.isEmpty()) {
-            return Map.of("answer", "I'm sorry, I couldn't find any information in the knowledge brain related to your question.", 
-                          "sources", List.of());
+        // 1. Greeting Interceptor
+        String q = query.toLowerCase().trim();
+        if (q.equals("hi") || q.equals("hello") || q.equals("hey") || q.startsWith("how are you")) {
+            return Map.of(
+                    "answer", "HELLO! I AM KREOSO. HOW CAN I ASSIST YOU TODAY?",
+                    "sources", List.of(),
+                    "confidence", 100);
         }
 
-        String context = topChunks.stream()
-                .map(Chunk::getText)
-                .collect(Collectors.joining("\n---\n"));
+        // 2. Retrieval (Search for context)
+        List<Chunk> topChunks = search(query, 5); // Increased for better coverage
 
-        List<String> sources = topChunks.stream()
-                .map(Chunk::getDocumentName)
-                .distinct()
-                .collect(Collectors.toList());
+        String context = "";
+        List<String> sources = List.of();
 
-        String answer = ollamaClient.generateAnswer(query, context);
+        if (!topChunks.isEmpty()) {
+            context = topChunks.stream()
+                    .map(Chunk::getText)
+                    .collect(Collectors.joining("\n---\n"));
+
+            sources = topChunks.stream()
+                    .map(Chunk::getDocumentName)
+                    .distinct()
+                    .collect(Collectors.toList());
+        }
+
+        // 3. Generation
+        String rawAiResponse = ollamaClient.generateAnswer(query, context);
         
-        return Map.of("answer", answer, "sources", sources);
+        try {
+            // Since we enabled JSON mode in OllamaClient, we can parse directly
+            com.google.gson.JsonObject jsonResponse = com.google.gson.JsonParser.parseString(rawAiResponse).getAsJsonObject();
+            
+            String answer = "";
+            if (jsonResponse.has("answer")) answer = jsonResponse.get("answer").getAsString();
+            else if (jsonResponse.has("ANSWER")) answer = jsonResponse.get("ANSWER").getAsString();
+            
+            int confidence = 50;
+            if (jsonResponse.has("confidence")) confidence = jsonResponse.get("confidence").getAsInt();
+            else if (jsonResponse.has("CONFIDENCE")) confidence = jsonResponse.get("CONFIDENCE").getAsInt();
+            
+            return Map.of(
+                "answer", answer, 
+                "sources", sources,
+                "confidence", confidence
+            );
+        } catch (Exception e) {
+            // Fallback for any parity issues
+            return Map.of(
+                "answer", rawAiResponse.trim(), 
+                "sources", sources,
+                "confidence", 50 
+            );
+        }
     }
 }

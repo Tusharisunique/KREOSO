@@ -12,5 +12,14 @@ CREATE TABLE IF NOT EXISTS chunks (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS feedbacks (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    query TEXT,
+    answer TEXT,
+    rating INT, -- 1 for thumbs up, -1 for thumbs down
+    ai_confidence INT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX ON chunks USING hnsw (embedding vector_cosine_ops)
 WITH (m = 16, ef_construction = 64);

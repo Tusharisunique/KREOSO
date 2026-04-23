@@ -33,30 +33,24 @@ public class EmbeddingService {
     }
 
     public int embedPending() throws Exception {
-        // Step 1: Fetch all PENDING chunks from PostgreSQL
         List<Chunk> pendingChunks = chunkRepository.findByStatus("PENDING");
         if (pendingChunks.isEmpty()) {
             return 0;
         }
 
-        // Step 2: Shared lists — protected by synchronized in EmbeddingWorker
         List<float[]> vectors = new ArrayList<>();
         List<Chunk> processedChunks = new ArrayList<>();
 
-        // Step 3: 4-thread ExecutorService — one thread per chunk in parallel
         ExecutorService executor = Executors.newFixedThreadPool(4);
         for (Chunk chunk : pendingChunks) {
             executor.submit(new EmbeddingWorker(chunk, ollamaClient, vectors, processedChunks));
         }
 
-        // Step 4: Wait for all threads to finish (max 10 minutes)
         executor.shutdown();
         executor.awaitTermination(10, TimeUnit.MINUTES);
 
-        // Step 5: Update each successfully embedded chunk status to COMPLETED and save to DB
         for (Chunk chunk : processedChunks) {
             chunk.setStatus("COMPLETED");
-            // This saves the text AND the embedding vector to Supabase
             chunkRepository.save(chunk);
         }
 

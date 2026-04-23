@@ -19,7 +19,6 @@ public class IngestionController {
 
     @PostMapping
     public ResponseEntity<String> ingest(@RequestParam("file") MultipartFile file) {
-        // ... (existing logic)
         try {
             Path tempFile = Files.createTempFile("seekb_", "_" + file.getOriginalFilename());
             file.transferTo(tempFile.toFile());
