@@ -1,6 +1,6 @@
 # Compiled class file
 *.class
-
+run_all.sh
 # Log file
 *.log
 
