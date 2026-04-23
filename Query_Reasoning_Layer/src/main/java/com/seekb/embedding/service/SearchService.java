@@ -84,31 +84,34 @@ public class SearchService {
 
         // 3. Generation
         String rawAiResponse = ollamaClient.generateAnswer(query, context);
-        
+
         try {
             // Since we enabled JSON mode in OllamaClient, we can parse directly
-            com.google.gson.JsonObject jsonResponse = com.google.gson.JsonParser.parseString(rawAiResponse).getAsJsonObject();
-            
+            com.google.gson.JsonObject jsonResponse = com.google.gson.JsonParser.parseString(rawAiResponse)
+                    .getAsJsonObject();
+
             String answer = "";
-            if (jsonResponse.has("answer")) answer = jsonResponse.get("answer").getAsString();
-            else if (jsonResponse.has("ANSWER")) answer = jsonResponse.get("ANSWER").getAsString();
-            
+            if (jsonResponse.has("answer"))
+                answer = jsonResponse.get("answer").getAsString();
+            else if (jsonResponse.has("ANSWER"))
+                answer = jsonResponse.get("ANSWER").getAsString();
+
             int confidence = 50;
-            if (jsonResponse.has("confidence")) confidence = jsonResponse.get("confidence").getAsInt();
-            else if (jsonResponse.has("CONFIDENCE")) confidence = jsonResponse.get("CONFIDENCE").getAsInt();
-            
+            if (jsonResponse.has("confidence"))
+                confidence = jsonResponse.get("confidence").getAsInt();
+            else if (jsonResponse.has("CONFIDENCE"))
+                confidence = jsonResponse.get("CONFIDENCE").getAsInt();
+
             return Map.of(
-                "answer", answer, 
-                "sources", sources,
-                "confidence", confidence
-            );
+                    "answer", answer,
+                    "sources", sources,
+                    "confidence", confidence);
         } catch (Exception e) {
             // Fallback for any parity issues
             return Map.of(
-                "answer", rawAiResponse.trim(), 
-                "sources", sources,
-                "confidence", 50 
-            );
+                    "answer", rawAiResponse.trim(),
+                    "sources", sources,
+                    "confidence", 50);
         }
     }
 }
