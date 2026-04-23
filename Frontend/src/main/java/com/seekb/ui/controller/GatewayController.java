@@ -30,6 +30,9 @@ public class GatewayController {
     @Value("${reasoning.url}")
     private String reasoningUrl;
 
+    @Value("${feedback.url}")
+    private String feedbackUrl;
+
     // --- Authentication ---
 
     @GetMapping("/")
@@ -126,5 +129,12 @@ public class GatewayController {
     public Map ask(@RequestBody Map<String, String> request, HttpSession session) {
         if (session.getAttribute("role") == null) return Map.of("answer", "Session Expired.");
         return restTemplate.postForObject(reasoningUrl + "/query/ask", request, Map.class);
+    }
+
+    @PostMapping("/chat/feedback")
+    @ResponseBody
+    public Map submitFeedback(@RequestBody Map<String, Object> request, HttpSession session) {
+        if (session.getAttribute("role") == null) return Map.of("error", "Unauthorized");
+        return restTemplate.postForObject(feedbackUrl + "/feedback/save", request, Map.class);
     }
 }

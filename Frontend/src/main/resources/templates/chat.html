@@ -59,15 +59,49 @@
                 
                 const data = await response.json();
                 
-                // Update AI Message
-                loadingMsg.innerHTML = data.answer.toUpperCase();
+                // Update AI Message: Just the clean answer
+                loadingMsg.innerHTML = `<div class="answer-text">${data.answer}</div>`;
                 
-                if (data.sources && data.sources.length > 0) {
-                    const sourcesDiv = document.createElement('div');
-                    sourcesDiv.className = 'sources';
-                    sourcesDiv.innerText = 'SOURCES: ' + data.sources.join(', ');
-                    loadingMsg.appendChild(sourcesDiv);
+                // --- Metadata & Warnings (Now strictly BELOW the answer) ---
+                
+                // 1. Low Confidence Warning
+                if (data.confidence !== undefined && data.confidence < 70) {
+                    const warn = document.createElement('div');
+                    warn.className = 'confidence-warning';
+                    warn.style.marginTop = '1rem';
+                    warn.innerText = '⚠ LOW CONFIDENCE ALERT - VERIFY WITH SYSTEM ADMIN';
+                    loadingMsg.appendChild(warn);
                 }
+
+                // 2. Confidence & Sources Pill
+                const metaDiv = document.createElement('div');
+                metaDiv.className = 'message-metadata';
+
+                if (data.confidence !== undefined) {
+                    const confBadge = document.createElement('span');
+                    confBadge.className = 'conf-badge ' + (data.confidence < 70 ? 'low' : 'high');
+                    confBadge.innerText = 'CONFIDENCE: ' + data.confidence + '%';
+                    metaDiv.appendChild(confBadge);
+                }
+
+                if (data.sources && data.sources.length > 0) {
+                    const sourcesSpan = document.createElement('span');
+                    sourcesSpan.className = 'sources-list';
+                    sourcesSpan.innerText = ' | SOURCES: ' + data.sources.join(', ');
+                    metaDiv.appendChild(sourcesSpan);
+                }
+                
+                loadingMsg.appendChild(metaDiv);
+
+                // 3. Feedback Layer UI
+                const feedbackDiv = document.createElement('div');
+                feedbackDiv.className = 'feedback-actions';
+                feedbackDiv.innerHTML = `
+                    <button onclick="sendFeedback('${text.replace(/'/g, "\\'")}', '${data.answer.replace(/'/g, "\\'")}', 1, ${data.confidence || 100}, this)">👍</button>
+                    <button onclick="sendFeedback('${text.replace(/'/g, "\\'")}', '${data.answer.replace(/'/g, "\\'")}', -1, ${data.confidence || 100}, this)">👎</button>
+                `;
+                loadingMsg.appendChild(feedbackDiv);
+
             } catch (err) {
                 loadingMsg.innerText = 'COMMUNICATION ERROR: ' + err.message;
             }
@@ -75,10 +109,23 @@
             scrollToBottom();
         });
 
+        async function sendFeedback(q, a, r, c, btn) {
+            try {
+                await fetch('/chat/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: q, answer: a, rating: r, confidence: c })
+                });
+                btn.parentElement.innerHTML = '<span style="font-size: 0.8rem; opacity: 0.6;">FEEDBACK RECORDED</span>';
+            } catch (err) {
+                console.error('Feedback failed', err);
+            }
+        }
+
         function addMessage(text, role) {
             const div = document.createElement('div');
             div.className = 'message ' + role;
-            div.innerText = text.toUpperCase();
+            div.innerText = text;
             chatHistory.appendChild(div);
             scrollToBottom();
             return div;

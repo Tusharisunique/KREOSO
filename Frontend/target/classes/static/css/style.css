@@ -145,6 +145,73 @@ td {
     opacity: 0.7;
 }
 
+.confidence-warning {
+    background-color: #000000;
+    color: #ffffff;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    display: inline-block;
+}
+
+.message-metadata {
+    margin-top: 1rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #eeeeee;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.conf-badge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 0.2rem 0.4rem;
+    text-transform: uppercase;
+    border: 1px solid #000000;
+}
+
+.conf-badge.low {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+.conf-badge.high {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.sources-list {
+    font-size: 0.65rem;
+    font-family: monospace;
+    opacity: 0.6;
+    text-transform: uppercase;
+}
+
+.feedback-actions {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    border-top: 1px dashed #000000;
+    padding-top: 0.5rem;
+}
+
+.feedback-actions button {
+    background: transparent;
+    border: 1px solid #000000;
+    cursor: pointer;
+    padding: 0.2rem 0.5rem;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.feedback-actions button:hover {
+    background-color: #000000;
+    color: #ffffff;
+}
+
 /* Footer */
 footer {
     padding: 2rem;
